@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+GAMEPATH=../bwapi_nix/build/bin
+rm $GAMEPATH/results/*
+rm -r rl_gen*
+rm -r $GAMEPATH/maps/replays/ai/*
+cd $GAMEPATH
+./Overmind -create models/model1
+./Overmind -create models/model2
+./Overmind -create models/model3

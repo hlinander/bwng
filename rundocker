@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+nvidia-docker run --rm -it -v /home/herden/projects/scai/bwng:/home/herden/projects/scai/bwng -w /home/herden/projects/scai/bwng -u $(id -u):$(id -g) --cap-add=SYS_PTRACE --security-opt seccomp=unconfined bwng:9 /bin/bash
