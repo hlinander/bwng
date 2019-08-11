@@ -21,7 +21,8 @@ RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
 RUN wget https://apt.repos.intel.com/setup/intelproducts.list -O /etc/apt/sources.list.d/intelproducts.list
 RUN apt-get update
 RUN apt install -y intel-mkl-2018.2-046
-ENV TORCH_CUDA_ARCH_LIST=7.0
+ENV TORCH_CUDA_ARCH_LIST=5.2
 RUN apt install -y python-dev python3-dev python python-setuptools python-yaml
+RUN apt install -y valgrind
 
 #RUN python3 setup.py build
