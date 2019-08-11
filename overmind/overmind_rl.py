@@ -39,8 +39,13 @@ def run_pair(model1, id1, model2, id2):
     name1 = get_run_name(model1, id1)
     name2 = get_run_name(model2, id2)
     base = ['./BWAPILauncher']
+    #envhost = {"OPENBW_LAN_MODE": "LOCAL", "OPENBW_LOCAL_PATH": "/tmp/bwsocket"}
+    #envjoin = {"OPENBW_LAN_MODE": "LOCAL", "OPENBW_LOCAL_PATH": "/tmp/bwsocket"}
     envhost = {"OPENBW_LAN_MODE": "FILE", "OPENBW_FILE_READ": "fifor", "OPENBW_FILE_WRITE": "fifow"}
     envjoin = {"OPENBW_LAN_MODE": "FILE", "OPENBW_FILE_READ": "fifow", "OPENBW_FILE_WRITE": "fifor"}
+    #envhost = {"OPENBW_LAN_MODE": "TCP" }
+    #envjoin = {"OPENBW_LAN_MODE": "TCP" }
+    #os.unlink("/tmp/bwsocket")
     host_process = run(base, name1, envhost)
     return { 
         'host': host_process,
@@ -68,8 +73,14 @@ def do_round(results, generation):
             m1 = MODELS[i]
             m2 = MODELS[j]
             res = run_pair(m1, "g{}a{}b{}".format(generation, i, j), m2, "g{}b{}a{}".format(generation, i, j))
-            res['host'].wait()
-            res['join'].wait()
+            try:
+                res['host'].wait(10)
+                res['join'].wait(10)
+            except:
+                print("PANTS ON SUN")
+                res['host'].kill()
+                res['join'].kill()
+                time.sleep(1)
             if not parse_results(res, results):
                 print("PANTS ON MOON")
             sys.stdout.write(".")
