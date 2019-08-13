@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+mycli -u root -p 1234 -h $1 < sql.sql

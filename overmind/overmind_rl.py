@@ -103,9 +103,12 @@ while True:
         model_file = "models/{}".format(model)
         update_process = run(["./Overmind", "-update", model_file, run_results_list, model_file], "notused", {})
         #update_process.wait()
-        updaters.append(update_process)
-    for updater in updaters:
+        updaters.append((update_process, results[model]))
+    for updater, results_list in updaters:
         updater.wait()
+        for f in results_list:
+            os.unlink(os.path.join(RESULT_PATH, f))
+
     try:
         shutil.copytree(MODEL_PATH, "rl_gen_%d" % (generation))
         # shutil.copytree("../sc/maps/replays/ai", "rl_gen_%d/reps" % (generation))
