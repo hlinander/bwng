@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker run --rm --name=mysql1 -p 3306:3306 -v /home/herden/projects/scai/bwng/workdb/database:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_ROOT_HOST=% mysql/mysql-server:8.0 --max-allowed-packet=100M
+docker run --rm --name=mysql1 -p 3306:3306 -v /home/herden/projects/scai/bwng/workdb/database:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=herdevinstsko -e MYSQL_ROOT_HOST=% mysql/mysql-server:8.0 --max-allowed-packet=100M

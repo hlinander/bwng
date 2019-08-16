@@ -15,7 +15,10 @@ def load_model(strain):
     return open(model_path(strain), 'rb').read()
 
 def load_result(strain):
-    return open(os.path.join(CWD, RESULT_PATH, str(strain)), 'rb').read()
+    path = os.path.join(CWD, RESULT_PATH, args.name + str(strain))
+    result = open(path, 'rb').read()
+    safe_unlink(path)
+    return result
 
 def write_model(strain, data):
     os.makedirs(MODEL_PATH, exist_ok=True)
@@ -54,9 +57,9 @@ def openbw(model1_data, model2_data):
     try:
         p1.wait(args.timeout)
         p2.wait(args.timeout)
-        os.unlink(os.path.join(CWD, f"{args.name}_local"))
+        safe_unlink(os.path.join(CWD, f"{args.name}_local"))
     except:
-        os.unlink(os.path.join(CWD, f"{args.name}_local"))
+        safe_unlink(os.path.join(CWD, f"{args.name}_local"))
         p1.kill()
         p2.kill()
         raise Exception("No pants!")
@@ -64,6 +67,8 @@ def openbw(model1_data, model2_data):
     r2 = load_result(2)
     return (r1, r2)
 
-def create_fifo():
-    run(['mkfifo', f"{args.name}_fifor"]).wait()
-    run(['mkfifo', f"{args.name}_fifow"]).wait()
+def safe_unlink(path):
+    try:
+        os.unlink(path)
+    except:
+        pass

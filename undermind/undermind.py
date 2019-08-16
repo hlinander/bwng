@@ -3,10 +3,14 @@ import os
 import sys
 from itertools import combinations
 import time
+import traceback
+import requests
+import json
 
 from args import args
 from model import load_model, create_model, openbw, overmind
 import model
+import stats
 
 N_STRAINS = 3
 CWD = args.path
@@ -32,24 +36,35 @@ def create_or_load_models(strains):
 def schedule_generation(models):
     generation_id = db.create_generation()
     n_models = len(models)
-    model_ids = dict()
+    model_ids = []
     for strain_id, data in models.items():
-        model_ids[strain_id] = db.create_model(strain_id, data)
+        model_ids.append(db.create_model(strain_id, data))
 
-    for (id1, id2) in combinations(models.keys(), 2):
+    for (id1, id2) in combinations(model_ids, 2):
             db.create_job(generation_id, id1, id2)
     
     return generation_id
-            
+
+def wait_for_generation(generation_id):
+    while not db.is_generation_done(generation_id):
+        db.reset_timed_out()
+        db.print_stats()
+        time.sleep(0.5)
+
+def wait_for_resume():
+    for (generation,) in db.unfinished_generations():
+        print(f"[Undermind] Waiting for straggling jobs in generation {generation}")
+        wait_for_generation(generation)
+
 def undermind_server():
     strains = create_or_get_strains()
     models = create_or_load_models(strains)
     os.makedirs(model.RESULT_PATH, exist_ok=True)
+    wait_for_resume()
     while True:
         generation_id = schedule_generation(models)
         print(f"[Undermind server] Created generation {generation_id}")
-        while not db.is_generation_done(generation_id):
-            time.sleep(0.5)
+        wait_for_generation(generation_id)
         print(f"[Undermind server] Generation {generation_id} done")
         overminds = []
         for strain_id, model_data in models.items():
@@ -63,8 +78,12 @@ def undermind_server():
             open(strain_results_file, "w").write("\n".join(result_files))
             strain_current_model_file = model.model_path(strain_id)
             overminds.append(overmind(["-update", strain_current_model_file, strain_results_file, strain_current_model_file]))
-            models[strain_id] = load_model(strain_id)
         [it.wait() for it in overminds]
+
+        for strain_id in models:
+            models[strain_id] = load_model(strain_id)
+            stats_file = model.model_path(strain_id) + "_stats.json"
+            stats.post_json_file("results", stats_file, dict(strain=strain_id))
 
         
 
@@ -82,13 +101,13 @@ def undermind_client():
             print(f"[Undermind client] Results created")
         except Exception as e:
             print(f"[Undermind client] Job {job_id} has no pants!")
+            traceback.print_exc()
             db.reset_job(job_id)
             
 
 if args.server:
     undermind_server()
 elif args.client:
-    model.create_fifo()
     undermind_client()
 # g = db.create_generation()
 # print(db.get_strains() )

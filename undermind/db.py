@@ -65,9 +65,16 @@ def is_generation_done(generation_id):
     ctx.commit()
     return res
 
+def unfinished_generations():
+    query = "SELECT * FROM unfinished_generations"
+    con.execute(query)
+    ret = con.fetchall()
+    ctx.commit()
+    return ret
+
 def get_job():
     while True:
-        query = f'UPDATE jobs SET state=1, worker_name="{args.name}" WHERE state=0 AND LAST_INSERT_ID(id) LIMIT 1'
+        query = f'UPDATE jobs SET state=1, worker_name="{args.name}", started=NOW() WHERE state=0 AND LAST_INSERT_ID(id) LIMIT 1'
         con.execute(query)
         ctx.commit()
         if con.rowcount > 0:
@@ -82,6 +89,32 @@ def get_job():
             print("[DB] Waiting for job...")
             time.sleep(0.5)
 
+def reset_timed_out():
+    fields = ['job_id', 'generation_id', 'model1_id', 'model2_id']
+    sql_fields = ",".join(fields)
+    query = f"SELECT {sql_fields} FROM timed_out"
+    con.execute(query)
+    jobs = con.fetchall()
+    ctx.commit()
+    res = [dict(zip(fields, job)) for job in jobs]
+    for job in res:
+        query = "DELETE FROM jobs WHERE id=%s"
+        con.execute(query, (job['job_id'],))
+        ctx.commit()
+        create_job(job['generation_id'], job['model1_id'], job['model2_id'])
+        print('[DB] Reset timed out job ', job['job_id'])
+    return res
+
+def print_stats():
+    query = "SELECT COUNT(id) FROM jobs WHERE state=0"
+    con.execute(query)
+    n_unclaimed = con.fetchone()[0]
+    ctx.commit()
+    query = "SELECT COUNT(id) FROM jobs WHERE state=1"
+    con.execute(query)
+    n_claimed = con.fetchone()[0]
+    ctx.commit()
+    print(f"[DB] {n_claimed} jobs claimed and {n_unclaimed} remaining")
 
 def create_model(strain_id, data):
     query = "INSERT INTO models (strain_id, data) VALUES (%s, %s)"

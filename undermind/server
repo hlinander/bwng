@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+python3 ./undermind.py -p $(pwd)/../bwapi_nix/build/bin -s
