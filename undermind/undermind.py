@@ -23,6 +23,10 @@ def create_or_get_strains():
     ind_data = db.get_strains()
     return list(map(lambda d: d[0], ind_data))
 
+def reset_models(strains):
+    for strain in strains:
+        create_model(strain)
+
 def create_or_load_models(strains):
     models = dict()
     for strain in strains:
@@ -58,9 +62,12 @@ def wait_for_resume():
 
 def undermind_server():
     strains = create_or_get_strains()
+    if args.reset_models:
+        reset_models(strains)
     models = create_or_load_models(strains)
     os.makedirs(model.RESULT_PATH, exist_ok=True)
-    wait_for_resume()
+    if not args.reset_models:
+        wait_for_resume()
     while True:
         generation_id = schedule_generation(models)
         print(f"[Undermind server] Created generation {generation_id}")
@@ -110,6 +117,13 @@ def undermind_client():
             
 
 if args.server:
+    if args.reset_index:
+        stats.delete_index("results")
+        stats.index_type("results", {
+            'timestamp': {
+                'type': 'date'
+            }
+        })
     undermind_server()
 elif args.client:
     undermind_client()

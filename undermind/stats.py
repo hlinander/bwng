@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+import args
 
 def post_json_file(index, path, extra):
     try:
@@ -13,9 +14,28 @@ def post_dict(index, data, extra):
     try:
         data.update(extra)
         data['timestamp'] = int(time.time() * 1000.0)
-        r = requests.post(f'http://localhost:9200/{index}/_doc', json=data)
+        r = requests.post(f'http://{args.db_host}:9200/{index}/_doc', json=data)
         if r.status_code != 201:
             print(r)
             print(r.content)
     except:
         print("[Stats] Couldn't post stats")
+
+def delete_index(index):
+    r = requests.delete(f'http://{args.db_host}:9200/{index}')
+    if r.status_code != 201:
+        print(r)
+        print(r.content)
+
+def index_type(index, data):
+    new_data = {
+        'mappings': {
+            '_doc': {
+                'properties': data
+            }
+        }
+    }
+    r = requests.put(f'http://{args.db_host}:9200/{index}', json=new_data)
+    if r.status_code != 201:
+        print(r)
+        print(r.content)
