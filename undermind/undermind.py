@@ -67,6 +67,7 @@ def undermind_server():
         wait_for_generation(generation_id)
         print(f"[Undermind server] Generation {generation_id} done")
         overminds = []
+        files_to_delete = []
         for strain_id, model_data in models.items():
             res = db.get_results(strain_id, generation_id)
             result_files = []
@@ -74,12 +75,15 @@ def undermind_server():
                 result_file = os.path.join(CWD, model.RESULT_PATH, f"{strain_id}_{job_id}")
                 open(result_file, 'wb').write(data)
                 result_files.append(result_file)
+                files_to_delete.append(result_file)
             strain_results_file = os.path.join(CWD, model.RESULT_PATH, f"{strain_id}_results")
             open(strain_results_file, "w").write("\n".join(result_files))
             strain_current_model_file = model.model_path(strain_id)
             overminds.append(overmind(["-update", strain_current_model_file, strain_results_file, strain_current_model_file]))
         [it.wait() for it in overminds]
 
+        for f in files_to_delete:
+            os.unlink(f)
         for strain_id in models:
             models[strain_id] = load_model(strain_id)
             stats_file = model.model_path(strain_id) + "_stats.json"

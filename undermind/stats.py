@@ -1,5 +1,6 @@
 import requests
 import json
+import time
 
 def post_json_file(index, path, extra):
     try:
@@ -10,7 +11,11 @@ def post_json_file(index, path, extra):
 
 def post_dict(index, data, extra):
     try:
-        all_data = data.update(extra)
-        requests.post(f'http://localhost:9200/{index}/_doc', json=all_data)
+        data.update(extra)
+        data['timestamp'] = int(time.time() * 1000.0)
+        r = requests.post(f'http://localhost:9200/{index}/_doc', json=data)
+        if r.status_code != 201:
+            print(r)
+            print(r.content)
     except:
         print("[Stats] Couldn't post stats")
