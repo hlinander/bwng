@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-nvidia-docker run --network=host --rm -it -v /home/herden/projects/scai/bwng:/home/herden/projects/scai/bwng -w /home/herden/projects/scai/bwng --cap-add=SYS_PTRACE --security-opt seccomp=unconfined bwng:1 /bin/bash
+nvidia-docker run --network=host --rm -it -v $(pwd):/bwng -w /bwng --cap-add=SYS_PTRACE --security-opt seccomp=unconfined hlinander/bwng:current /bin/bash

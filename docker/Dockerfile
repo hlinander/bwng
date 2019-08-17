@@ -20,3 +20,5 @@ ENV TORCH_CUDA_ARCH_LIST=3.5;5.0+PTX;6.0;6.1;7.0
 RUN apt install -y python-dev python3-dev python python-setuptools python-yaml
 RUN apt install -y valgrind
 RUN python3 setup.py build
+RUN apt install -y python3-pip
+RUN pip3 install mysql-connector-python requests
