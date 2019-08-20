@@ -86,8 +86,8 @@ def undermind_server():
             strain_results_file = os.path.join(CWD, model.RESULT_PATH, f"{strain_id}_results")
             open(strain_results_file, "w").write("\n".join(result_files))
             strain_current_model_file = model.model_path(strain_id)
-            overminds.append(overmind(["-update", strain_current_model_file, strain_results_file, strain_current_model_file]))
-        [it.wait() for it in overminds]
+            overminds.append(overmind(["-update", strain_current_model_file, strain_results_file, strain_current_model_file]).wait())
+        #[it.wait() for it in overminds]
 
         for f in files_to_delete:
             os.unlink(f)

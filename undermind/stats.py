@@ -1,7 +1,7 @@
 import requests
 import json
 import time
-import args
+from args import args
 
 def post_json_file(index, path, extra):
     try:
@@ -18,7 +18,8 @@ def post_dict(index, data, extra):
         if r.status_code != 201:
             print(r)
             print(r.content)
-    except:
+    except Exception as e:
+        print(str(e))
         print("[Stats] Couldn't post stats")
 
 def delete_index(index):
