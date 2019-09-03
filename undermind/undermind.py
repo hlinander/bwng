@@ -83,6 +83,7 @@ def undermind_server():
                 open(result_file, 'wb').write(data)
                 result_files.append(result_file)
                 files_to_delete.append(result_file)
+                db.delete_result(job_id)
             strain_results_file = os.path.join(CWD, model.RESULT_PATH, f"{strain_id}_results")
             open(strain_results_file, "w").write("\n".join(result_files))
             strain_current_model_file = model.model_path(strain_id)
@@ -94,7 +95,7 @@ def undermind_server():
         for strain_id in models:
             models[strain_id] = load_model(strain_id)
             stats_file = model.model_path(strain_id) + "_stats.json"
-            stats.post_json_file("results", stats_file, dict(strain=strain_id))
+            stats.post_json_file("results", stats_file, dict(strain=strain_id, generation=generation_id))
 
         
 

@@ -27,8 +27,8 @@ CREATE TABLE jobs (
 	started TIMESTAMP DEFAULT NULL,
 	created TIMESTAMP DEFAULT NOW(),
 	FOREIGN KEY (generation_id) REFERENCES generations(id),
-	FOREIGN KEY (model1_id) REFERENCES models(id),
-	FOREIGN KEY (model2_id) REFERENCES models(id)
+	FOREIGN KEY (model1_id) REFERENCES models(id) ON DELETE CASCADE,
+	FOREIGN KEY (model2_id) REFERENCES models(id) ON DELETE CASCADE
 );
 
 CREATE TABLE results (
@@ -39,7 +39,7 @@ CREATE TABLE results (
 	created TIMESTAMP DEFAULT NOW(),
 	FOREIGN KEY (job_id) REFERENCES jobs(id),
 	FOREIGN KEY (generation_id) REFERENCES generations(id),
-	FOREIGN KEY (model_id) REFERENCES models(id)
+	FOREIGN KEY (model_id) REFERENCES models(id) ON DELETE CASCADE
 );
 
 CREATE VIEW timed_out AS SELECT

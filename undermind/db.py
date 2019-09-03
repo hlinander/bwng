@@ -41,6 +41,12 @@ def create_result(job_id, generation_id, result_model_id):
     ctx.commit()
     return con.lastrowid
 
+def delete_result(job_id):
+    query = "DELETE models FROM results INNER JOIN models ON (models.id=results.model_id) WHERE results.job_id=%s"
+    con.execute(query, (job_id,))
+    ctx.commit()
+
+
 def get_results(strain_id, generation_id):
     query = """
         SELECT results.job_id, models.data FROM results 
