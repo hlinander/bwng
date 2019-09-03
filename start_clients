@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+for i in $(seq 1 $1)
+do
+	echo "Starting client $i"
+	nvidia-docker run -d --network=host --rm -v $(pwd):/bwng -w /bwng/undermind hlinander/bwng:current ./client "$2$i" "${@:2}"
+done
