@@ -35,6 +35,11 @@ def reset_job(job_id):
     con.execute(query, (job_id,))
     ctx.commit()
 
+def finish_job(job_id):
+    query = "UPDATE jobs SET state=2 WHERE id=%s"
+    con.execute(query, (job_id,))
+    ctx.commit()
+
 def create_result(job_id, generation_id, result_model_id):
     query = 'INSERT INTO results (job_id, model_id, generation_id) VALUES (%s, %s, %s)'
     con.execute(query, (job_id, result_model_id, generation_id))
@@ -61,13 +66,11 @@ def get_results(strain_id, generation_id):
 
 def is_generation_done(generation_id):
     query = """
-        SELECT r.n_results >= 2 * j.n_jobs as done FROM 
-            (SELECT COUNT(id) AS n_jobs FROM jobs 
-                WHERE (state=1 OR state=0) AND generation_id=%s) j 
-        JOIN (SELECT COUNT(id) as n_results FROM results WHERE generation_id=%s) r ON (TRUE);
+        SELECT COUNT(id)=0 as done FROM jobs WHERE state!=2 AND generation_id = %s
         """
-    con.execute(query, (generation_id, generation_id))
-    res = bool(con.fetchone()[0])
+    con.execute(query, (generation_id,))
+    row = con.fetchone()
+    res = bool(row[0])
     ctx.commit()
     return res
 

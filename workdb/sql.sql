@@ -42,20 +42,20 @@ CREATE TABLE results (
 	FOREIGN KEY (model_id) REFERENCES models(id) ON DELETE CASCADE
 );
 
+
 CREATE VIEW timed_out AS SELECT
 	jobs.id as job_id,
 	jobs.generation_id as generation_id,
 	jobs.model1_id as model1_id,
 	jobs.model2_id as model2_id
 FROM jobs WHERE 
-	(SELECT COUNT(id) FROM results WHERE job_id=jobs.id) < 2 AND
 	jobs.state=1 AND
 	jobs.started < ADDDATE(NOW(), INTERVAL -1 MINUTE);
 
 CREATE VIEW unfinished_generations AS SELECT
 	DISTINCT jobs.generation_id
 FROM jobs WHERE 
-	(SELECT COUNT(id) FROM results WHERE job_id=jobs.id) < 2;
+	state!=2;
 
 CREATE VIEW job_models AS SELECT 
 	jobs.id as job_id, 

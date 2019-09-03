@@ -12,7 +12,7 @@ from model import load_model, create_model, openbw, overmind
 import model
 import stats
 
-N_STRAINS = 3
+N_STRAINS = 4
 CWD = args.path
 
 def create_or_get_strains():
@@ -110,6 +110,7 @@ def undermind_client():
             print(f"[Undermind client] Models created")
             db.create_result(job_id, generation_id, mr1)
             db.create_result(job_id, generation_id, mr2)
+            db.finish_job(job_id)
             print(f"[Undermind client] Results created")
         except Exception as e:
             print(f"[Undermind client] Job {job_id} has no pants!")
