@@ -31,25 +31,19 @@ def create_model(strain):
 def overmind(args):
     return run(['./Overmind'] + args)
 
-def openbw(model1_data, model2_data):
+def openbw(model1_data, model2_data, strain1_id, strain2_id, generation_id):
     print("[Model] Writing models")
-    write_model(1, model1_data)
-    write_model(2, model2_data)
+    write_model(strain1_id, model1_data)
+    write_model(strain2_id, model2_data)
     model1_env = {
-        # "OPENBW_LAN_MODE": "FILE", 
-        # "OPENBW_FILE_READ": f"{args.name}_fifor", 
-        # "OPENBW_FILE_WRITE": f"{args.name}_fifow",
         "OPENBW_LAN_MODE": "LOCAL", 
         "OPENBW_LOCAL_PATH": f"{args.name}_local", 
-        "BWAPI_CONFIG_AUTO_MENU__CHARACTER_NAME": f"{args.name}1_model1"
+        "BWAPI_CONFIG_AUTO_MENU__CHARACTER_NAME": f"{args.name}_{generation_id}_{strain1_id}_{strain2_id}"
          }
     model2_env = {
-        # "OPENBW_LAN_MODE": "FILE", 
-        # "OPENBW_FILE_READ": f"{args.name}_fifow", 
-        # "OPENBW_FILE_WRITE": f"{args.name}_fifor",
         "OPENBW_LAN_MODE": "LOCAL", 
         "OPENBW_LOCAL_PATH": f"{args.name}_local", 
-        "BWAPI_CONFIG_AUTO_MENU__CHARACTER_NAME": f"{args.name}2_model2"
+        "BWAPI_CONFIG_AUTO_MENU__CHARACTER_NAME": f"{args.name}_{generation_id}_{strain2_id}_{strain1_id}"
         }
     print("[Model] Launching openbw")
     p1 = run(['./BWAPILauncher'], model1_env)
@@ -63,8 +57,8 @@ def openbw(model1_data, model2_data):
         p1.kill()
         p2.kill()
         raise Exception("No pants!")
-    r1 = load_result(1)
-    r2 = load_result(2)
+    r1 = load_result(strain1_id)
+    r2 = load_result(strain2_id)
     return (r1, r2)
 
 def safe_unlink(path):
