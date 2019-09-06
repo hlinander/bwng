@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+nvidia-docker run --network=host --rm -it -v $(pwd):/bwng -w /bwng/bwapi_nix/build/ hlinander/bwng:current make
